@@ -1,0 +1,107 @@
+#lang racket
+
+; Signature: append(lst1, lst2)
+; Purpose: To concat two given lists to each other.
+; Type: [list*list -> list]
+; Example: (append '(1 2) '(3 4))-> '(1 2 3 4)
+; Pre-conditions: list? lst1 & list? lst2
+; Post-conditions: list? result & result = lst1 + lst2 & @PRE(lst1) = lst1 & @PRE(lst2) = lst2
+; Test: (append '(1 #f 2) '())-> '(1 #f 2))
+
+(define append 
+  (lambda(lst1 lst2)
+      if(empty? lst1)
+         (lst2)
+         (cons (car lst1)
+               (append(cdr lst1, lst2)))
+  )
+)
+
+; Signature: reverse(lst)
+; Purpose: To reverse the order of elements of a given list
+; Type: [list -> list]
+; Example: (reverse '(1 2 3))-> '(3 2 1)
+; Pre-conditions: list? lst
+; Post-conditions: list? result & result = reverse lst & @PRE(lst) = lst
+; Test: (reverse '())-> '())
+
+(define reverse 
+  (lambda (lst)
+       (if empty? lst)
+          ()
+          (cons (reverse(cdr lst))
+                 '())
+)
+
+; Signature: duplicate-items(lst, dup-count)
+; Purpose: To duplicate the items in lst according to the items in dup-count at the equivalent positions
+; Type: [list*list -> list]
+; Example: (duplicate-items '(1 2 3) '(1 0))→ '(1 3)
+; Pre-conditions: list? lst & list? dup-count & dup-count contains numbers
+; Post-conditions: list? result & result = duplicated lst & @PRE(lst) = lst & @PRE(dup-count) = dup-count
+; Test: ((duplicate-items '(1 2 3) '(2 1 0 10 2))→ '(1 1 2)
+
+(define duplicate-items
+   (lambda(lst dup-count)
+      if(empty? lst)
+         '()
+         (
+   )
+)
+
+; Signature: set dup(dup-count, counter)
+; Purpose: To move th e pointer to the list dup-count to the next location or to the start of the list if it got to the end of it
+; Type: [list*number -> list]
+; Example: (set-dup '(1 2) 1)-> 2
+; Pre-conditions: list? dup-count
+; Post-conditions: @PRE(dup-count) = dup-count & @PRE(counter) = counter & result = next position after counter
+; Test: (set-dup '(1 2) 2)-> 1
+
+(define set-dup
+  (lambda(dup-count)
+    @TODO
+   )
+)
+
+; Signature: duplicate (lst, counter)
+; Purpose: To duplicate the current item in lst 'counter' times
+; Type: [list*number -> list]
+; Example: (duplicate '(1 2) 2)-> '(1 1 2)
+; Pre-conditions: list? lst
+; Post-conditions: list? result & result = duplicated lst & @PRE(lst) = lst
+; Test: (duplicate '(1 2) 0)-> '(1 2)
+
+(define duplicate
+  (lambda(lst counter)
+    (cons (lst (duplicate(lst (- counter 1)))))
+   )
+)
+
+; Signature: append(lst1, lst2)
+; Purpose: To concat two given lists to each other.
+; Type: [list*list -> list]
+; Example: (append '(1,2) '(3,4))-> '(1,2,3,4)
+; Pre-conditions: list? lst1 & list? lst2
+; Post-conditions: list? result & result = list1 + list2 & @PRE(lst1) = lst1 & @PRE(lst2) = lst2
+; Test: (append '(1,#f,2) '())-> '(1,#f,2)
+  
+(define payment
+  (lambda (n coins-lst)
+        @TODO
+  )
+)
+
+; Signature: append(lst1, lst2)
+; Purpose: To concat two given lists to each other.
+; Type: [list*list -> list]
+; Example: (append '(1,2) '(3,4))-> '(1,2,3,4)
+; Pre-conditions: list? lst1 & list? lst2
+; Post-conditions: list? result & result = list1 + list2 & @PRE(lst1) = lst1 & @PRE(lst2) = lst2
+; Test: (append '(1,#f,2) '())-> '(1,#f,2)
+                               
+(define compose-n
+  (lambda( f n)
+        @TODO
+  )
+)
+

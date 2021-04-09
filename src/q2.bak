@@ -1,0 +1,32 @@
+(define append 
+  (lambda(lst1 lst2)
+      if(empty? lst1)
+         (= lst1 lst2)
+         (append(cdr lst1, lst2))
+  )
+)
+
+(define reverse 
+  (lambda (lst)
+        @TODO
+  )
+)
+
+(define duplicate-items
+   (lambda(lst dup-count)
+      @TODO
+   )
+)
+
+
+(define payment
+  (lambda (n coins-lst)
+        @TODO
+  )
+)
+                               
+(define compose-n
+  (lambda( f n)
+        @TODO
+  )
+)
