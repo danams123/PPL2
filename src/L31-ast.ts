@@ -4,7 +4,7 @@ import { map, zipWith } from "ramda";
 import { makeEmptySExp, makeSymbolSExp, SExpValue, makeCompoundSExp, valueToString } from '../imp/L3-value'
 import { first, second, rest, allT, isEmpty } from "../shared/list";
 import { isArray, isString, isNumericString, isIdentifier } from "../shared/type-predicates";
-import { Result, makeOk, makeFailure, bind, mapResult, safe2 } from "../shared/result";
+import { Result, makeOk, makeFailure, bind, mapResult, safe2, isOk } from "../shared/result";
 import { parse as p, isSexpString, isToken } from "../shared/parser";
 import { Sexp, Token } from "s-expression";
 
@@ -67,6 +67,7 @@ export interface Binding { tag: "Binding"; var: VarDecl; val: CExp; }
 export interface LetExp { tag: "LetExp"; bindings: Binding[]; body: CExp[]; }
 // L3
 export interface LitExp { tag: "LitExp"; val: SExpValue; }
+// L31
 export interface ClassExp { tag: "ClassExp"; vars: VarDecl[]; bindings: Binding[]; }
 
 // Type value constructors for disjoint types
@@ -93,7 +94,8 @@ export const makeLetExp = (bindings: Binding[], body: CExp[]): LetExp =>
 // L3
 export const makeLitExp = (val: SExpValue): LitExp =>
     ({ tag: "LitExp", val: val });
-export const makeClassExp = (fields: VarDecl[], methods: Binding[]) =>
+// L31
+export const makeClassExp = (fields: VarDecl[], methods: Binding[]): ClassExp =>
     ({ tag: "ClassExp", vars: fields, bindings: methods });
 
 // Type predicates for disjoint types
@@ -114,6 +116,7 @@ export const isBinding = (x: any): x is Binding => x.tag === "Binding";
 export const isLetExp = (x: any): x is LetExp => x.tag === "LetExp";
 // L3
 export const isLitExp = (x: any): x is LitExp => x.tag === "LitExp";
+//L31
 export const isClassExp = (x: any): x is ClassExp => x.tag === "ClassExp";
 
 // Type predicates for type unions
@@ -239,8 +242,14 @@ const parseLetExp = (bindings: Sexp, body: Sexp[]): Result<LetExp> => {
         (bindingsResult, mapResult(parseL31CExp, body));
 }
 
-const parseClassExp = (vars: Sexp, bindings: Sexp[]): Result<CExp> => {
-
+const parseClassExp = (fields: Sexp, bindings: Sexp): Result<ClassExp> => {
+    if (!isGoodBindings(bindings)) {
+        return makeFailure('Malformed bindings in "class" expression');
+    }
+    const valsResult: Result<CExp[]> = mapResult(binding => parseL31CExp(binding), bindings);
+    const bindingsResult: Result<Binding[]> = bind(valsResult, (vals: CExp[]) => makeOk(zipWith(makeBinding, [""], vals)));
+    return (isArray(fields) && allT(isString, fields) ? bind(bindingsResult, (bind: Binding[]) =>
+        makeOk(makeClassExp(map(makeVarDecl, fields), bind))) : makeFailure(`Invalid fields for ClassExp`));
 }
 
 // sexps has the shape (quote <sexp>)
@@ -294,6 +303,10 @@ const unparseProcExp = (pe: ProcExp): string =>
 const unparseLetExp = (le: LetExp): string =>
     `(let (${map((b: Binding) => `(${b.var.var} ${unparseL31(b.val)})`, le.bindings).join(" ")}) ${unparseLExps(le.body)})`
 
+const unparseClassExp = (cl: ClassExp): string =>
+    `(class (${(map((p: VarDecl) => p.var, cl.vars)).join(" ")}) ${map((b: Binding) => `${unparseL31(b.val)}`, cl.bindings).join(" ")}`
+//( class ( <var>+ ) ( <binding>+ ) )
+
 export const unparseL31 = (exp: Program | Exp): string =>
     isBoolExp(exp) ? valueToString(exp.val) :
         isNumExp(exp) ? valueToString(exp.val) :
@@ -307,4 +320,5 @@ export const unparseL31 = (exp: Program | Exp): string =>
                                         isLetExp(exp) ? unparseLetExp(exp) :
                                             isDefineExp(exp) ? `(define ${exp.var.var} ${unparseL31(exp.val)})` :
                                                 isProgram(exp) ? `(L31 ${unparseLExps(exp.exps)})` :
-                                                    exp;
+                                                    isClassExp(exp) ? unparseClassExp(exp) : // need to add some more
+                                                        exp;
